@@ -2,6 +2,8 @@ package org.Camp.Repository.Implement;
 
 import org.Camp.Model.Mapper.ReservationMapper;
 import org.Camp.Model.Entities.Reservation;
+import org.Camp.Model.Mapper.ReservationRequestMapper;
+import org.Camp.Model.Request.ReservationRequest;
 import org.Camp.Repository.ReservationRepository;
 import org.Camp.Utils.IdGenerator;
 import org.springframework.dao.DataAccessException;
@@ -22,14 +24,33 @@ public class ReservationImpl implements ReservationRepository {
     }
 
     @Override
-    public List<Reservation> findAll() {
+    public List<ReservationRequest> findAll() {
         try {
-            String sql = "SELECT * FROM reservations";
-            return jdbcTemplate.query(sql, new ReservationMapper());
+            String sql = "SELECT r.id, u.name as user_name, c.name as camp_name, r.start_date, r.end_date, r.checked_out, r.number_of_spots " +
+                    "FROM reservations r " +
+                    "JOIN users u ON r.user_id = u.id " +
+                    "JOIN camps c ON r.camp_id = c.id";
+            return jdbcTemplate.query(sql, new ReservationRequestMapper());
         }catch (Exception e){
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    @Override
+    public List<ReservationRequest> findByUserNameAndCampName(String userName, String campName, boolean checkedOut) {
+        try {
+            String sql = "SELECT r.id, u.name as user_name, c.name as camp_name, r.start_date, r.end_date, r.checked_out, r.number_of_spots " +
+                    "FROM reservations r " +
+                    "JOIN users u ON r.user_id = u.id " +
+                    "JOIN camps c ON r.camp_id = c.id " +
+                    "WHERE u.name = ? AND c.name = ? AND checked_out= ?";
+            return jdbcTemplate.query(sql, new ReservationRequestMapper(), userName, campName, checkedOut);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+
 
     @Override
     public Optional<Reservation> findById(Long id) {

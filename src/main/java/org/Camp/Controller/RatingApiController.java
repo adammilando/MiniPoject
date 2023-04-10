@@ -1,6 +1,7 @@
 package org.Camp.Controller;
 
 import org.Camp.Model.Entities.Rating;
+import org.Camp.Model.Request.RatingRequest;
 import org.Camp.Model.Response.CommonResponse;
 import org.Camp.Model.Response.SuccessResponse;
 import org.Camp.Service.RatingService;
@@ -21,8 +22,15 @@ public class RatingApiController {
 
     @GetMapping
     public ResponseEntity getAllRatings() {
-        List<Rating> ratings = ratingService.findAll();
+        List<RatingRequest> ratings = ratingService.findAll();
         CommonResponse commonResponse = new SuccessResponse<>("Success Get All Rating", ratings);
+        return ResponseEntity.status(HttpStatus.OK).body(commonResponse);
+    }
+
+    @GetMapping("/find-rating")
+    public ResponseEntity findRatingByUserAndCamp(@RequestParam String name, @RequestParam String camp){
+        List<RatingRequest> ratingRequests = ratingService.findByUserAndCamp(name, camp);
+        CommonResponse commonResponse = new SuccessResponse<>("Success Get rating", ratingRequests);
         return ResponseEntity.status(HttpStatus.OK).body(commonResponse);
     }
 

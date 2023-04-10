@@ -1,6 +1,7 @@
 package org.Camp.Controller;
 
 import org.Camp.Model.Entities.Reservation;
+import org.Camp.Model.Request.ReservationRequest;
 import org.Camp.Model.Response.CommonResponse;
 import org.Camp.Model.Response.SuccessResponse;
 import org.Camp.Service.ReservationService;
@@ -21,8 +22,15 @@ public class ReservationApiController {
 
     @GetMapping
     public ResponseEntity getAllReservations() {
-        List<Reservation> reservations = reservationService.findAll();
+        List<ReservationRequest> reservations = reservationService.findAll();
         CommonResponse commonResponse = new SuccessResponse<>("Success Get ALl Reservation",reservations);
+        return ResponseEntity.status(HttpStatus.OK).body(commonResponse);
+    }
+
+    @GetMapping("/find-reservation")
+    public ResponseEntity getReservationByUserNameAndCamp(@RequestParam String userName, @RequestParam String campName, @RequestParam boolean checkedOut){
+        List<ReservationRequest> reservationRequest= reservationService.findByUserNameAndCampName(userName, campName, checkedOut);
+        CommonResponse commonResponse = new SuccessResponse<>("Success Find Reservation", reservationRequest);
         return ResponseEntity.status(HttpStatus.OK).body(commonResponse);
     }
 
@@ -59,7 +67,7 @@ public class ReservationApiController {
     public ResponseEntity deleteReservation(@PathVariable("id") Long id) {
         Reservation reservation = reservationService.findById(id);
         reservationService.delete(id);
-        CommonResponse commonResponse = new SuccessResponse<>("Success Deleting Camp Ground",reservation);
+        CommonResponse commonResponse = new SuccessResponse<>("Success Deleting Reservation",reservation);
         return ResponseEntity.status(HttpStatus.OK).body(commonResponse);
     }
 }

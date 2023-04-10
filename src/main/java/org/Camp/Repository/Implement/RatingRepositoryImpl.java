@@ -2,6 +2,8 @@ package org.Camp.Repository.Implement;
 
 import org.Camp.Model.Mapper.RatingMapper;
 import org.Camp.Model.Entities.Rating;
+import org.Camp.Model.Mapper.RatingRequestMapper;
+import org.Camp.Model.Request.RatingRequest;
 import org.Camp.Repository.RatingRepository;
 import org.Camp.Utils.IdGenerator;
 import org.springframework.dao.DataAccessException;
@@ -21,10 +23,27 @@ public class RatingRepositoryImpl implements RatingRepository {
     }
 
     @Override
-    public List<Rating> findAll() {
+    public List<RatingRequest> findAll() {
         try {
-            String sql = "SELECT * FROM ratings";
-            return jdbcTemplate.query(sql, new RatingMapper());
+            String sql = "SELECT r.id, u.name AS user_name, c.name AS camp_name, r.score, r.comment " +
+                    "FROM ratings r " +
+                    "JOIN users u ON r.user_id = u.id " +
+                    "JOIN camps c ON r.camp_id = c.id ";
+            return jdbcTemplate.query(sql, new RatingRequestMapper());
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<RatingRequest> findByUserAndCamp(String user, String camp) {
+        try {
+            String sql = "SELECT r.id, u.name AS user_name, c.name AS camp_name, r.score, r.comment " +
+                    "FROM ratings r " +
+                    "JOIN users u ON r.user_id = u.id " +
+                    "JOIN camps c ON r.camp_id = c.id " +
+                    "WHERE u.name = ? AND c.name = ?";
+            return jdbcTemplate.query(sql, new RatingRequestMapper(), user, camp);
         }catch (Exception e){
             throw new RuntimeException(e.getMessage());
         }

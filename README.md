@@ -26,6 +26,7 @@ Note: make sure to replace <your_username> and <your_database_name> with your ac
 ### Ratings
 
     GET /api/ratings - Get all ratings.
+    GET /api/ratings/find-rating - Get Rating by user and camp
     GET /api/ratings/{id} - Get a rating by ID.
     POST /api/ratings - Create a new rating.
     PUT /api/ratings/{id} - Update an existing rating by ID.
@@ -34,6 +35,7 @@ Note: make sure to replace <your_username> and <your_database_name> with your ac
 ### Reservations
 
     GET /api/reservations - Get all reservations.
+    GET /api/reservations/find-reservation - Get Reservation by user, camp, and checkout
     GET /api/reservations/{id} - Get a reservation by ID.
     POST /api/reservations - Create a new reservation.
     PUT /api/reservations/{id} - Update an existing reservation by ID.

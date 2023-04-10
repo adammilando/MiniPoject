@@ -4,6 +4,7 @@ import org.Camp.Exception.NotFoundException;
 import org.Camp.Exception.ReservationException;
 import org.Camp.Model.Entities.Camp;
 import org.Camp.Model.Entities.Reservation;
+import org.Camp.Model.Request.ReservationRequest;
 import org.Camp.Repository.CampRepository;
 import org.Camp.Repository.ReservationRepository;
 import org.Camp.Service.ReservationService;
@@ -24,9 +25,9 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<Reservation> findAll() {
+    public List<ReservationRequest> findAll() {
         try {
-            List<Reservation> reservations = reservationRepository.findAll();
+            List<ReservationRequest> reservations = reservationRepository.findAll();
             if (reservations.isEmpty()){
                 throw new NotFoundException("Database Empty");
             }
@@ -35,6 +36,21 @@ public class ReservationServiceImpl implements ReservationService {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Failed to find all reservations: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<ReservationRequest> findByUserNameAndCampName(String userName, String campName, boolean checkedOut) {
+        try {
+            List<ReservationRequest> reservationRequests = reservationRepository.findByUserNameAndCampName(userName, campName, checkedOut);
+            if (reservationRequests.isEmpty()){
+                throw new NotFoundException("Cannot find reservation With given name, camp, and checked out situation");
+            }
+            return reservationRequests;
+        }catch (NotFoundException e){
+            throw e;
+        }catch (Exception e){
+            throw new RuntimeException("Failed to find reservation: "+ e.getMessage());
         }
     }
 
@@ -75,7 +91,6 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation update(Reservation reservation) {
         try {
-            findById(reservation.getId());
             validateReservation(reservation);
             Optional<Reservation> existingReservation = reservationRepository.findById(reservation.getId());
             if (existingReservation.isEmpty()) {

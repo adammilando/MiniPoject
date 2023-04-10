@@ -5,6 +5,7 @@ import org.Camp.Exception.RatingException;
 import org.Camp.Exception.ReservationException;
 import org.Camp.Model.Entities.Rating;
 import org.Camp.Model.Entities.Reservation;
+import org.Camp.Model.Request.RatingRequest;
 import org.Camp.Repository.RatingRepository;
 import org.Camp.Repository.ReservationRepository;
 import org.Camp.Service.RatingService;
@@ -25,9 +26,9 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public List<Rating> findAll() {
+    public List<RatingRequest> findAll() {
         try {
-            List<Rating> rating = ratingRepository.findAll();
+            List<RatingRequest> rating = ratingRepository.findAll();
             if (rating.isEmpty()){
                 throw new NotFoundException("Database Empty");
             }
@@ -36,6 +37,21 @@ public class RatingServiceImpl implements RatingService {
             throw e;
         } catch (Exception e){
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<RatingRequest> findByUserAndCamp(String user, String camp) {
+        try {
+            List<RatingRequest> ratingRequests = ratingRepository.findByUserAndCamp(user, camp);
+            if (ratingRequests.isEmpty()){
+                throw new NotFoundException("Cannot Find rating with given user and camp name");
+            }
+            return ratingRequests;
+        }catch (NotFoundException e){
+            throw e;
+        }catch (Exception e){
+            throw new RuntimeException("Failed to find rating: " + e.getMessage());
         }
     }
 
