@@ -36,7 +36,7 @@ public class ReservationApiController {
     @PostMapping
     public ResponseEntity createReservation(@RequestBody Reservation reservation) {
        Reservation createReservation = reservationService.save(reservation);
-       CommonResponse commonResponse = new SuccessResponse<>("Success Creating New Reservation",reservation);
+       CommonResponse commonResponse = new SuccessResponse<>("Success Creating New Reservation",createReservation);
        return ResponseEntity.status(HttpStatus.CREATED).body(commonResponse);
     }
 
