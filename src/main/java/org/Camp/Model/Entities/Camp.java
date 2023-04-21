@@ -10,5 +10,4 @@ public class Camp {
     private String location;
     private BigDecimal price;
     private int stock;
-
 }

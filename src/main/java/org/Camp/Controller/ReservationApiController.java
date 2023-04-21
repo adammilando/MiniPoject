@@ -56,8 +56,8 @@ public class ReservationApiController {
         return ResponseEntity.status(HttpStatus.OK).body(commonResponse);
     }
 
-    @PutMapping("/{id}/status-checkout")
-    public ResponseEntity updateCheckOutStatus(@PathVariable("id") Long id, @RequestParam boolean checkOut){
+    @PutMapping("/status-checkout")
+    public ResponseEntity updateCheckOutStatus(@RequestParam("id") Long id, @RequestParam boolean checkOut){
         Reservation updateStatus = reservationService.changeCheckoutStatus(id,checkOut);
         CommonResponse commonResponse = new SuccessResponse<>("Success Update Status CheckOut", updateStatus);
         return ResponseEntity.status(HttpStatus.OK).body(commonResponse);

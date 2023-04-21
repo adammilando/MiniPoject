@@ -10,7 +10,7 @@ public interface ReservationRepository {
     List<ReservationRequest> findAll();
     Optional<Reservation> findById(Long id);
     List<ReservationRequest> findByUserNameAndCampName(String userName, String campName, boolean checkedOut);
-    Optional<Reservation> findByUserIdAndCampId(Long userId, Long campId);
+    List<Reservation> findByUserIdAndCampId(Long userId, Long campId);
     Optional<Reservation> findByCampId(Long id);
     int save(Reservation reservation);
     int update(Reservation reservation);

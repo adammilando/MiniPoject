@@ -5,8 +5,7 @@ import lombok.Data;
 @Data
 public class Rating {
     private Long id;
-    private Long userId;
-    private Long campId;
+    private Long reservationId;
     private int score;
     private String comment;
 }

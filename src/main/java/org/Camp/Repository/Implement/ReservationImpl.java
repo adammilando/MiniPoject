@@ -67,11 +67,10 @@ public class ReservationImpl implements ReservationRepository {
 
 
     @Override
-    public Optional<Reservation> findByUserIdAndCampId(Long userId, Long campId) {
+    public List<Reservation> findByUserIdAndCampId(Long userId, Long campId) {
         try {
             String sql = "SELECT * FROM reservations WHERE user_id = ? AND camp_id = ?";
-            List<Reservation> reservations = jdbcTemplate.query(sql, new ReservationMapper(), userId, campId);
-            return reservations.isEmpty() ? Optional.empty() : Optional.of(reservations.get(0));
+            return jdbcTemplate.query(sql, new ReservationMapper(), userId, campId);
         } catch (DataAccessException e) {
             throw new RuntimeException("Failed to find reservation", e);
         }

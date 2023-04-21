@@ -70,30 +70,22 @@ public class RatingServiceImpl implements RatingService {
     public Rating save(Rating rating) {
         try {
             validateRating(rating);
+
             // Validasi apakah user sudah melakukan reservasi di tempat perkemahan yang sesuai
-            Optional<Reservation> reservation = reservationRepository.findByUserIdAndCampId(rating.getUserId(), rating.getCampId());
-            if (reservation.isEmpty()) {
-                throw new ReservationException("User has not made a reservation at this camp");
+            Optional<Reservation> reservationOpt = reservationRepository.findById(rating.getReservationId());
+            if (!reservationOpt.isPresent()) {
+                throw new ReservationException("Invalid reservation ID");
             }
 
-            // Mengambil semua rating yang diberikan oleh pengguna
-            Optional<Rating> userRating = ratingRepository.findByUserId(rating.getUserId());
+            Reservation reservation = reservationOpt.get();
+            if (!reservation.isCheckedOut()) {
+                throw new ReservationException("User has not checked out from the camp");
+            }
 
-            // Mengambil semua reservasi yang dibuat oleh pengguna untuk camp tertentu
-            List<Reservation> userReservations = reservationRepository.findByCampId(rating.getCampId()).stream()
-                    .filter(res -> res.getUserId().equals(rating.getUserId()))
-                    .toList();
-
-            // Mengecek apakah pengguna telah memberikan rating untuk camp yang sama sebelumnya
-            boolean hasPreviousRating = userRating.isPresent() && userRating.get().getCampId().equals(rating.getCampId());
-
-            // Menghitung jumlah reservasi yang telah selesai sebelum tanggal penilaian
-            long allowedRatingsCount = userReservations.stream()
-                    .filter(res -> res.getEndDate().isBefore(LocalDate.now()))
-                    .count();
-
-            if (hasPreviousRating && allowedRatingsCount <= 1) {
-                throw new RuntimeException("User has already given a rating for this reservation");
+            // Cek apakah rating sudah ada untuk reservasi ini
+            Optional<Rating> existingRating = ratingRepository.findByReservationId(reservation.getId());
+            if (existingRating.isPresent()) {
+                throw new ReservationException("User has already given a rating for this reservation");
             }
 
             return ratingRepository.save(rating) == 1 ? rating : null;
@@ -104,24 +96,28 @@ public class RatingServiceImpl implements RatingService {
         }
     }
 
+
+
+
     @Override
     public Rating update(Rating rating) {
         try {
-            findById(rating.getId());
+            Rating existingRating = findById(rating.getId());
             validateRating(rating);
 
-            // Validasi apakah user sudah melakukan reservasi di tempat perkemahan yang sesuai
-            Optional<Reservation> reservation = reservationRepository.findByUserIdAndCampId(rating.getUserId(), rating.getCampId());
-            if (reservation.isEmpty()) {
-                throw new ReservationException("User has not made a reservation at this camp");
-            }
-            return ratingRepository.update(rating) == 1 ? rating : null;
+            rating.setReservationId(existingRating.getReservationId());
+
+            existingRating.setScore(rating.getScore());
+            existingRating.setComment(rating.getComment());
+
+            return ratingRepository.update(existingRating) == 1 ? existingRating : null;
         } catch (ReservationException e){
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Failed to update rating: " + e.getMessage(), e);
         }
     }
+
 
     @Override
     public boolean delete(Long id) {
@@ -136,8 +132,6 @@ public class RatingServiceImpl implements RatingService {
     private void validateRating(Rating rating) {
         try {
             Assert.notNull(rating, "Rating must not be null");
-            Assert.notNull(rating.getUserId(), "User ID must not be null");
-            Assert.notNull(rating.getCampId(), "Camp ID must not be null");
             Assert.isTrue(rating.getScore() >= 1 && rating.getScore() <= 5, "Score must be between 1 and 5");
             Assert.isTrue(rating.getComment() != null && !rating.getComment().isEmpty(), "Comment must not be null or empty");
         } catch (IllegalArgumentException e) {
